@@ -112,6 +112,19 @@ button.button:hover {
   min-width: 680px;
 }
 
+.scroll-hint {
+  text-align: center;
+  font-size: 0.8em;
+  color: #999;
+  margin-top: -0.8em;
+  margin-bottom: 1em;
+  display: none;
+}
+
+.scroll-hint.visible {
+  display: block;
+}
+
 .paper-wide-figure {
   overflow-x: auto;
 }

@@ -127,55 +127,86 @@
                     RL is required for TextCall to match image-return training.
                 </p>
                 <div class="table-scroll">
-                    <table class="display-table" style="width:100%;">
+                    <table class="display-table">
                         <tr>
                             <th>Model / Protocol</th>
                             <th>Data</th>
                             <th>Eval</th>
-                            <th>V*Bench</th>
-                            <th>Core 6-bench note</th>
+                            <th>V*</th>
+                            <th>HR-4K</th>
+                            <th>HR-8K</th>
+                            <th>MMStar</th>
+                            <th>CV-2D</th>
+                            <th>CV-3D</th>
+                            <th>Mean</th>
                         </tr>
                         <tr>
                             <td style="text-align:left;">Thinking-with-images SFT</td>
                             <td>9.5K LoRA</td>
                             <td>Agent</td>
-                            <td>71.73%</td>
-                            <td style="text-align:left;">Small-scale image-return baseline.</td>
+                            <td>71.73</td>
+                            <td>63.00</td>
+                            <td>54.00</td>
+                            <td>56.20</td>
+                            <td><strong>74.48</strong></td>
+                            <td>66.92</td>
+                            <td>64.39</td>
                         </tr>
                         <tr>
                             <td style="text-align:left;">TextCall SFT</td>
                             <td>9.5K LoRA</td>
                             <td>TextCall</td>
-                            <td><strong>76.96%</strong></td>
-                            <td style="text-align:left;">+5.23 pp on V*Bench.</td>
+                            <td>76.96</td>
+                            <td>71.50</td>
+                            <td>67.00</td>
+                            <td>56.93</td>
+                            <td>70.93</td>
+                            <td>68.42</td>
+                            <td>68.62</td>
                         </tr>
                         <tr>
                             <td style="text-align:left;">Thinking-with-images SFT</td>
                             <td>65K</td>
                             <td>Agent</td>
-                            <td><strong>78.53%</strong></td>
-                            <td style="text-align:left;">Core mean 69.84.</td>
+                            <td>78.53</td>
+                            <td>69.25</td>
+                            <td>64.38</td>
+                            <td>61.33</td>
+                            <td>73.37</td>
+                            <td>72.17</td>
+                            <td>69.84</td>
                         </tr>
                         <tr>
                             <td style="text-align:left;">TextCall SFT</td>
                             <td>65K</td>
                             <td>TextCall</td>
-                            <td>78.01%</td>
-                            <td style="text-align:left;">Core mean 71.23, +1.39 pp over image return.</td>
+                            <td>78.01</td>
+                            <td>73.12</td>
+                            <td>67.50</td>
+                            <td>62.73</td>
+                            <td>72.32</td>
+                            <td><strong>73.67</strong></td>
+                            <td><strong>71.23</strong></td>
                         </tr>
                         <tr>
                             <td style="text-align:left;">TextCall SFT+RL</td>
                             <td>77K</td>
                             <td>TextCall</td>
-                            <td>81.68%</td>
-                            <td style="text-align:left;">Reported checkpoint keeps about 75% tool-call rate.</td>
+                            <td><strong>81.68</strong></td>
+                            <td><strong>73.88</strong></td>
+                            <td><strong>70.62</strong></td>
+                            <td><strong>65.53</strong></td>
+                            <td>67.32</td>
+                            <td>56.83</td>
+                            <td>69.31</td>
                         </tr>
                     </table>
                 </div>
                 <p>
-                    At the 65K scale, TextCall is 0.52 pp lower on V*Bench alone, but the paper's core
-                    six-benchmark mean is 71.23 versus 69.84 for thinking-with-images. The reversal is
-                    therefore small and benchmark-specific rather than a suite-level loss.
+                    At the 65K scale, TextCall is 0.52 pp lower on V*Bench alone but the core
+                    six-benchmark mean is 71.23 versus 69.84 (+1.39 pp). Four of six benchmarks
+                    favour TextCall; the two small reversals (V*Bench −0.52 pp, CV-2D −1.05 pp)
+                    are within noise, and the suite-level comparison favours TextCall.
                 </p>
                 <div class="summary-box">
                     <p>
@@ -429,6 +460,19 @@
                     }
                 });
             }
+
+            document.querySelectorAll(".table-scroll").forEach(el => {
+                if (el.scrollWidth > el.clientWidth) {
+                    const hint = document.createElement("div");
+                    hint.className = "scroll-hint visible";
+                    hint.textContent = "Scroll for more columns →";
+                    el.after(hint);
+                    el.addEventListener("scroll", () => {
+                        hint.classList.toggle("visible",
+                            el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+                    });
+                }
+            });
         </script>
     </body>
 </html>
