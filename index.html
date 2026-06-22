@@ -1,478 +1,434 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Thinking With Tools, Not With Pixels</title>
-        <script src="template.v2.js"></script>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <div class="header-container">
-            <div class="header-content">
-                <p><strong>TextCall preserves the tool-call scaffold and removes only the returned pixels.</strong></p>
-                <h1>Thinking With Tools, Not With Pixels: Tool Calls as Text Scaffolds for Visual Reasoning</h1>
-                <p>
-                    Both pipelines emit a structured textual scaffold at tool-call time. Thinking-with-images
-                    consumes returned pixels, while TextCall receives <strong>[Image output skipped]</strong>.
-                </p>
-                <div class="button-container">
-                    <a href="#paper" class="button" data-resource="paper">Paper</a>
-                    <a href="#code" class="button" data-resource="code">Code</a>
-                    <a href="#bibtex" class="button" data-resource="bibtex">BibTeX</a>
-                </div>
-            </div>
-        </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thinking With Tools, Not With Pixels</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-        <d-article>
-            <div class="byline">
-                <div class="byline-container">
-                    <div class="byline-column">
-                        <h3>Authors</h3>
-                        <p>Jiahao Shao<sup>1</sup></p>
-                        <p>Yuanbo Yang<sup>4</sup></p>
-                        <p>Yiyi Liao<sup>4</sup></p>
-                        <p>Yujun Shen<sup>2</sup></p>
-                        <p>Ceyuan Yang<sup>3,&dagger;</sup></p>
-                        <p>Yinghao Xu<sup>1,&dagger;</sup></p>
-                    </div>
-                    <div class="byline-column">
-                        <h3>Affiliations</h3>
-                        <p><sup>1</sup> Hong Kong University of Science and Technology</p>
-                        <p><sup>2</sup> Robbyant, Ant Group</p>
-                        <p><sup>3</sup> The Chinese University of Hong Kong</p>
-                        <p><sup>4</sup> Zhejiang University</p>
-                        <p><sup>&dagger;</sup> Equal advising</p>
-                    </div>
-                    <div class="byline-column">
-                        <h3>Resources</h3>
-                        <p><a href="#paper" class="affiliation-link">Paper</a></p>
-                        <p><a href="#code" class="affiliation-link">Code Repository</a></p>
-                        <p><a href="#bibtex" class="affiliation-link">BibTeX</a></p>
-                    </div>
-                </div>
-            </div>
+  <div class="post">
 
-            <d-contents>
-                <nav>
-                    <h4>Contents</h4>
-                    <div><a href="#overview">Overview</a></div>
-                    <div><a href="#textcall-matches">TextCall Matches or Exceeds Thinking-with-Images</a></div>
-                    <div><a href="#why-textcall-works">Why TextCall Works</a></div>
-                    <div><a href="#lower-cost-default">Lower-Cost Default</a></div>
-                    <div><a href="#conclusion">Conclusion</a></div>
-                    <div><a href="#resources">Paper, Code, BibTeX</a></div>
-                </nav>
-            </d-contents>
+    <div class="post-header">
+      <h1 class="post-title">Thinking With Tools, Not With Pixels:<br>Tool Calls as Text Scaffolds for Visual Reasoning</h1>
+      <div class="authors">
+        Jiahao Shao<sup>1</sup>,
+        Yuanbo Yang<sup>4</sup>,
+        Yiyi Liao<sup>4</sup>,
+        Yujun Shen<sup>3</sup>,
+        Ceyuan Yang<sup>2,&dagger;</sup>,
+        Yinghao Xu<sup>1,&dagger;</sup>
+        <span class="aff">
+          <sup>1</sup>HKUST &nbsp;&middot;&nbsp;
+          <sup>2</sup>The Chinese University of Hong Kong &nbsp;&middot;&nbsp;
+          <sup>3</sup>Robbyant, Ant Group &nbsp;&middot;&nbsp;
+          <sup>4</sup>Zhejiang University &nbsp;&middot;&nbsp;
+          <sup>&dagger;</sup>Equal advising
+        </span>
+      </div>
+      <div class="post-links">
+        <a href="#paper">Paper</a> &nbsp;&middot;&nbsp;
+        <a href="#code">Code</a> &nbsp;&middot;&nbsp;
+        <a href="#bibtex">BibTeX</a>
+      </div>
+    </div>
 
-            <section id="overview">
-                <h2>Overview</h2>
-                <p>
-                    Tool-augmented vision-language models are often described as systems that think with
-                    images: they call crop, zoom, or code tools and reason over the returned pixels.
-                    Yet diagnostics challenge the premise that returned images carry the reasoning signal:
-                    replacing returned images with noise changes V*Bench by only 0.52 pp, removing images
-                    can even improve MathVista, and only 57% of returned crops contain the target object.
-                </p>
-                <p>
-                    The paper tests the <strong>Tool-Call Scaffold Hypothesis</strong>: the missing causal
-                    signal is the structured text emitted before any returned pixel arrives, including the
-                    <strong>tool name, coordinates, target description, and intent</strong>. This textual
-                    scaffold already encodes where to look and what to find.
-                </p>
-                <d-figure>
-                    <figure class="l-body paper-wide-figure">
-                        <img src="images/fig1-teaser.png" alt="Fig. 1 teaser comparing thinking with images and TextCall">
-                        <figcaption>
-                            TextCall preserves the tool-call scaffold and removes only the returned pixels.
-                            The retained scaffold channel and skipped pixel channel define the controlled
-                            carrier swap used throughout the paper.
-                        </figcaption>
-                    </figure>
-                </d-figure>
-            </section>
+    <div class="text">
+      <h2 id="overview">Overview</h2>
+      <p>
+        Tool-augmented vision-language models are often described as systems that think with
+        images: they call crop, zoom, or code tools and reason over the returned pixels.
+        Yet diagnostics challenge the premise that returned images carry the reasoning signal:
+        replacing returned images with noise changes V*Bench by only 0.52 pp, removing images
+        can even improve MathVista, and only 57% of returned crops contain the target object.
+      </p>
+      <p>
+        The paper tests the <strong>Tool-Call Scaffold Hypothesis</strong>: the missing causal
+        signal is the structured text emitted before any returned pixel arrives, including the
+        <strong>tool name, coordinates, target description, and intent</strong>. This textual
+        scaffold already encodes where to look and what to find.
+      </p>
+    </div>
 
-            <section id="textcall-matches">
-                <h2>TextCall Matches or Exceeds Thinking-with-Images</h2>
-                <h3>TextCall as a Training-Aligned Carrier Swap</h3>
-                <p>
-                    Standard thinking-with-images training couples two signals: the model emits a
-                    structured tool call, then consumes the image returned by that call. TextCall keeps
-                    the first signal intact and changes only the second. The model still produces the
-                    same crop, zoom, or code-style call, but the observation returned to the model is the
-                    fixed text marker <strong>[Image output skipped]</strong>.
-                </p>
-                <d-figure>
-                    <figure class="l-body paper-wide-figure">
-                        <img src="images/fig-scaffold-case-50.png" alt="Paper figure showing V*Bench #50 carrier swap between thinking with images and TextCall">
-                        <figcaption>
-                            On V*Bench #50, both thinking-with-images and TextCall identify the white
-                            motorcycle helmet. The tool-call scaffold is preserved, while the post-call
-                            pixel carrier is removed.
-                        </figcaption>
-                    </figure>
-                </d-figure>
-                <p>
-                    This matters because test-time image removal mixes two effects: a real need for
-                    returned pixels and a protocol mismatch. TextCall instead trains the model to never
-                    expect returned pixels, so the comparison isolates the carrier channel under a matched
-                    setting.
-                </p>
-                <h3>Main Results: TextCall &gt;= thinking-with-images Across Scales</h3>
-                <p>
-                    <strong>Returned pixels are not necessary under matched training</strong> is the
-                    paper's main empirical claim. The key comparisons are 9.5K LoRA thinking-with-images
-                    versus 9.5K TextCall, and 65K full fine-tuning thinking-with-images versus 65K TextCall.
-                    The RL row is presented as <strong>post-training behavior</strong>, not as a claim that
-                    RL is required for TextCall to match image-return training.
-                </p>
-                <div class="table-scroll">
-                    <table class="display-table">
-                        <tr>
-                            <th>Model / Protocol</th>
-                            <th>Data</th>
-                            <th>Eval</th>
-                            <th>V*</th>
-                            <th>HR-4K</th>
-                            <th>HR-8K</th>
-                            <th>MMStar</th>
-                            <th>CV-2D</th>
-                            <th>CV-3D</th>
-                            <th>Mean</th>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Thinking-with-images SFT</td>
-                            <td>9.5K LoRA</td>
-                            <td>Agent</td>
-                            <td>71.73</td>
-                            <td>63.00</td>
-                            <td>54.00</td>
-                            <td>56.20</td>
-                            <td><strong>74.48</strong></td>
-                            <td>66.92</td>
-                            <td>64.39</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">TextCall SFT</td>
-                            <td>9.5K LoRA</td>
-                            <td>TextCall</td>
-                            <td>76.96</td>
-                            <td>71.50</td>
-                            <td>67.00</td>
-                            <td>56.93</td>
-                            <td>70.93</td>
-                            <td>68.42</td>
-                            <td>68.62</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Thinking-with-images SFT</td>
-                            <td>65K</td>
-                            <td>Agent</td>
-                            <td>78.53</td>
-                            <td>69.25</td>
-                            <td>64.38</td>
-                            <td>61.33</td>
-                            <td>73.37</td>
-                            <td>72.17</td>
-                            <td>69.84</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">TextCall SFT</td>
-                            <td>65K</td>
-                            <td>TextCall</td>
-                            <td>78.01</td>
-                            <td>73.12</td>
-                            <td>67.50</td>
-                            <td>62.73</td>
-                            <td>72.32</td>
-                            <td><strong>73.67</strong></td>
-                            <td><strong>71.23</strong></td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">TextCall SFT+RL</td>
-                            <td>77K</td>
-                            <td>TextCall</td>
-                            <td><strong>81.68</strong></td>
-                            <td><strong>73.88</strong></td>
-                            <td><strong>70.62</strong></td>
-                            <td><strong>65.53</strong></td>
-                            <td>67.32</td>
-                            <td>56.83</td>
-                            <td>69.31</td>
-                        </tr>
-                    </table>
-                </div>
-                <p>
-                    At the 65K scale, TextCall is 0.52 pp lower on V*Bench alone but the core
-                    six-benchmark mean is 71.23 versus 69.84 (+1.39 pp). Four of six benchmarks
-                    favour TextCall; the two small reversals (V*Bench −0.52 pp, CV-2D −1.05 pp)
-                    are within noise, and the suite-level comparison favours TextCall.
-                </p>
-                <div class="summary-box">
-                    <p>
-                        TextCall matches or exceeds thinking-with-images without post-call pixels under
-                        SFT, and maintains active tool use under RL where thinking-with-images collapses.
-                        The post-call pixel return is not a necessary carrier for tool-augmented visual
-                        reasoning gains.
-                    </p>
-                </div>
-            </section>
+    <figure>
+      <img src="images/fig1-teaser.png" alt="Fig. 1 teaser comparing thinking with images and TextCall">
+      <figcaption>
+        <span class="fig-label">Figure 1.</span>
+        TextCall preserves the tool-call scaffold and removes only the returned pixels.
+        The retained scaffold channel and skipped pixel channel define the controlled
+        carrier swap used throughout the paper.
+      </figcaption>
+    </figure>
 
-            <section id="why-textcall-works">
-                <h2>Why TextCall Works: The Scaffold Carries the Gain</h2>
-                <h3>Data Audit: Scaffold Recovers Image Accuracy</h3>
-                <p>
-                    <strong>The scaffold recovers image accuracy</strong> in the paper's static carrier
-                    audit. On 1,000 matched training queries, the judge sees different information
-                    channels while the question is held fixed.
-                </p>
-                <div class="table-scroll">
-                    <table class="display-table" style="width:100%;">
-                        <tr>
-                            <th>Condition</th>
-                            <th>Judge input</th>
-                            <th>Accuracy</th>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Question only</td>
-                            <td style="text-align:left;">Question</td>
-                            <td>51.20%</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Image only</td>
-                            <td style="text-align:left;">Question + original image</td>
-                            <td>73.50%</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Scaffold only</td>
-                            <td style="text-align:left;">Question + first reasoning block + crop/zoom code</td>
-                            <td>73.10%</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Image + scaffold</td>
-                            <td style="text-align:left;">Question + image + scaffold</td>
-                            <td><strong>79.40%</strong></td>
-                        </tr>
-                    </table>
-                </div>
-                <p>
-                    Scaffold-only minus image-only is -0.40 pp with 95% CI [-3.20, +2.40], passing the
-                    paper's 5 pp non-inferiority test. The gain decomposition is also balanced: of the
-                    28.2 pp gain from question-only to image-plus-scaffold, 57% is recovered by both image
-                    and scaffold, 22% is image-unique, and 21% is scaffold-unique.
-                </p>
-                <h3>Scaffold Decomposition: Reasoning Guides and Code Grounds</h3>
-                <p>
-                    The component ablation asks what inside the scaffold matters. <strong>Reasoning guides
-                    and code grounds</strong>: reasoning text supplies intent and target description,
-                    while code supplies concrete spatial coordinates.
-                </p>
-                <d-figure>
-                    <figure class="l-body paper-wide-figure">
-                        <img src="images/fig-scaffold-decomposition.png" alt="Paper figure showing full scaffold, reasoning only, and code only variants">
-                        <figcaption>
-                            Scaffold component decomposition. The variants share identical training questions
-                            and tool-return policy; only the assistant text of each tool turn is manipulated.
-                            Reasoning supplies the why, while code supplies the where.
-                        </figcaption>
-                    </figure>
-                </d-figure>
-                <div class="table-scroll">
-                    <table class="display-table" style="width:100%;">
-                        <tr>
-                            <th>Variant</th>
-                            <th>Assistant content</th>
-                            <th>V*Bench</th>
-                            <th>HR-4K</th>
-                            <th>CV-2D</th>
-                            <th>Mean</th>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;"><strong>Full scaffold</strong></td>
-                            <td style="text-align:left;">Reasoning + executable code</td>
-                            <td>76.96%</td>
-                            <td>71.50%</td>
-                            <td><strong>70.93%</strong></td>
-                            <td><strong>73.13</strong></td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;"><strong>Reasoning only</strong></td>
-                            <td style="text-align:left;">Reasoning + <code>pass</code></td>
-                            <td>67.02%</td>
-                            <td><strong>72.12%</strong></td>
-                            <td>59.81%</td>
-                            <td>66.32</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;"><strong>Code only</strong></td>
-                            <td style="text-align:left;">Empty reasoning + executable code</td>
-                            <td>64.92%</td>
-                            <td>65.50%</td>
-                            <td>55.08%</td>
-                            <td>61.83</td>
-                        </tr>
-                    </table>
-                </div>
-                <p>
-                    Reasoning alone is enough on HR-4K but loses spatial grounding on V*Bench and CV-2D.
-                    Code-only keeps coordinates but loses the rationale, so the model can act as if it saw
-                    a region that was never returned.
-                </p>
-                <div class="summary-box">
-                    <p>
-                        The scaffold that survives TextCall is a composition of reasoning text and spatial
-                        code. Reasoning supplies the task intent and visual rationale; code anchors that
-                        rationale to concrete spatial coordinates. Removing either component weakens average
-                        performance, with code grounding mattering most on V*Bench and CV-2D.
-                    </p>
-                </div>
-            </section>
+    <div class="text">
+      <h2 id="textcall-matches">TextCall Matches or Exceeds Thinking-with-Images</h2>
+      <p>
+        Standard thinking-with-images training couples two signals: the model emits a
+        structured tool call, then consumes the image returned by that call. TextCall keeps
+        the first signal intact and changes only the second. The model still produces the
+        same crop, zoom, or code-style call, but the observation returned to the model is the
+        fixed text marker <strong>[Image output skipped]</strong>.
+      </p>
+    </div>
 
-            <section id="lower-cost-default">
-                <h2>TextCall Is the Lower-Cost Default When Pixels Are Not Load-Bearing</h2>
-                <h3>Within Agent Mode, TextCall matches or exceeds thinking-with-images at lower deployment cost</h3>
-                <p>
-                    If the scaffold is the load-bearing carrier in this regime, TextCall is the cheaper
-                    default. It keeps Agent Mode and the multi-turn tool interface, but removes returned
-                    image-token injection and returned-image API calls from the reported deployment path.
-                </p>
-                <div class="table-scroll">
-                    <table class="display-table" style="width:100%;">
-                        <tr>
-                            <th>Method</th>
-                            <th>V*Bench</th>
-                            <th>6-bench mean</th>
-                            <th>Turns</th>
-                            <th>API calls</th>
-                            <th>Mean latency</th>
-                            <th>p50 latency</th>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">TextCall sandbox</td>
-                            <td>78.01%</td>
-                            <td><strong>71.23</strong></td>
-                            <td><strong>2.3</strong></td>
-                            <td><strong>0</strong></td>
-                            <td><strong>2.91s</strong></td>
-                            <td><strong>2.49s</strong></td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">Thinking-with-images</td>
-                            <td><strong>78.53%</strong></td>
-                            <td>69.84</td>
-                            <td>2.8</td>
-                            <td>1.8</td>
-                            <td>4.12s</td>
-                            <td>3.10s</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align:left;">TextCall no execution</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>2.4</td>
-                            <td><strong>0</strong></td>
-                            <td>2.22s</td>
-                            <td>1.73s</td>
-                        </tr>
-                    </table>
-                </div>
-                <p>
-                    The reported latency reduction is <strong>29-46%</strong>. Each returned image adds
-                    about 498 ms of vision-token prefill in later turns, while sandbox execution accounts
-                    for about 15% of total latency.
-                </p>
-                <d-figure>
-                    <figure class="l-body">
-                        <img src="images/token-speed-sweep-paper.png" alt="Token speed sweep showing TextCall latency advantage over image-return tool use">
-                        <figcaption>
-                            Token-speed sweep. TextCall avoids returned-image vision prefill, giving it a
-                            lower latency floor under the sequential per-sample implementation.
-                        </figcaption>
-                    </figure>
-                </d-figure>
-                <h3>Deployment default</h3>
-                <p>
-                    The boundary conditions are explicit: one base model, one cold-start corpus, one seed,
-                    one GRPO epoch, and one perception-heavy evaluation suite. Returned pixels may become
-                    load-bearing when the task has a representational bottleneck or a visual prior gap,
-                    such as novel objects or fine-grained visual differences that the scaffold cannot
-                    verbalize or replace.
-                </p>
-            </section>
+    <figure class="fig-wide">
+      <img src="images/fig-scaffold-case-50.png" alt="Paper figure showing V*Bench #50 carrier swap between thinking with images and TextCall">
+      <figcaption>
+        <span class="fig-label">Figure 2.</span>
+        On V*Bench #50, both thinking-with-images and TextCall identify the white
+        motorcycle helmet. The tool-call scaffold is preserved, while the post-call
+        pixel carrier is removed.
+      </figcaption>
+    </figure>
 
-            <section id="conclusion">
-                <h2>Conclusion</h2>
-                <p>
-                    TextCall tests the unit-of-thought question with a training-time carrier swap: preserve
-                    the tool-call scaffold, remove returned pixels, and evaluate the model under the protocol
-                    it was trained to follow. Across the studied thinking-with-images regime, the results
-                    support the Tool-Call Scaffold Hypothesis: much of the gain attributed to visual tool use
-                    is carried by structured text emitted before image observation.
-                </p>
-                <p>
-                    The conclusion is deliberately scoped. The missing regime is where returned pixels supply
-                    information the scaffold cannot verbalize or replace; future thinking-with-images systems
-                    should report a scaffold-only control so the load-bearing carrier is measured rather than
-                    assumed.
-                </p>
-            </section>
+    <div class="text">
+      <p>
+        This matters because test-time image removal mixes two effects: a real need for
+        returned pixels and a protocol mismatch. TextCall instead trains the model to never
+        expect returned pixels, so the comparison isolates the carrier channel under a matched
+        setting.
+      </p>
+      <h3>Main Results: TextCall &gt;= Thinking-with-Images Across Scales</h3>
+      <p>
+        <strong>Returned pixels are not necessary under matched training</strong> is the
+        paper's main empirical claim. The key comparisons are 9.5K LoRA thinking-with-images
+        versus 9.5K TextCall, and 65K full fine-tuning thinking-with-images versus 65K TextCall.
+        The RL row is presented as <strong>post-training behavior</strong>, not as a claim that
+        RL is required for TextCall to match image-return training.
+      </p>
+    </div>
 
-            <section id="resources">
-                <h2>Paper, Code, BibTeX</h2>
-                <p id="paper">
-                    <strong>Paper.</strong> Placeholder link for the public preprint or project PDF.
-                    <a href="#paper">Paper placeholder</a>
-                </p>
-                <p id="code">
-                    <strong>Code.</strong> Placeholder link for the implementation repository.
-                    <a href="#code">Code placeholder</a>
-                </p>
-                <p>
-                    Figures on this page are exported from the paper figure assets; resource links remain
-                    placeholders until the public preprint and repository are ready.
-                </p>
-                <div id="bibtex">
-                    <button class="button copy-button" type="button" data-copy-bibtex>Copy BibTeX</button>
-                    <pre><code>@misc{textcall2026thinking,
+    <div class="table-wrap">
+      <table class="results">
+        <tr>
+          <th>Model / Protocol</th>
+          <th>Data</th>
+          <th>Eval</th>
+          <th>V*</th>
+          <th>HR-4K</th>
+          <th>HR-8K</th>
+          <th>MMStar</th>
+          <th>CV-2D</th>
+          <th>CV-3D</th>
+          <th>Mean</th>
+        </tr>
+        <tr>
+          <td class="left">Thinking-with-images SFT</td>
+          <td>9.5K LoRA</td>
+          <td>Agent</td>
+          <td>71.73</td>
+          <td>63.00</td>
+          <td>54.00</td>
+          <td>56.20</td>
+          <td><strong>74.48</strong></td>
+          <td>66.92</td>
+          <td>64.39</td>
+        </tr>
+        <tr>
+          <td class="left">TextCall SFT</td>
+          <td>9.5K LoRA</td>
+          <td>TextCall</td>
+          <td>76.96</td>
+          <td>71.50</td>
+          <td>67.00</td>
+          <td>56.93</td>
+          <td>70.93</td>
+          <td>68.42</td>
+          <td>68.62</td>
+        </tr>
+        <tr>
+          <td class="left">Thinking-with-images SFT</td>
+          <td>65K</td>
+          <td>Agent</td>
+          <td>78.53</td>
+          <td>69.25</td>
+          <td>64.38</td>
+          <td>61.33</td>
+          <td>73.37</td>
+          <td>72.17</td>
+          <td>69.84</td>
+        </tr>
+        <tr>
+          <td class="left">TextCall SFT</td>
+          <td>65K</td>
+          <td>TextCall</td>
+          <td>78.01</td>
+          <td>73.12</td>
+          <td>67.50</td>
+          <td>62.73</td>
+          <td>72.32</td>
+          <td><strong>73.67</strong></td>
+          <td><strong>71.23</strong></td>
+        </tr>
+        <tr>
+          <td class="left">TextCall SFT+RL</td>
+          <td>77K</td>
+          <td>TextCall</td>
+          <td><strong>81.68</strong></td>
+          <td><strong>73.88</strong></td>
+          <td><strong>70.62</strong></td>
+          <td><strong>65.53</strong></td>
+          <td>67.32</td>
+          <td>56.83</td>
+          <td>69.31</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="text">
+      <p>
+        At the 65K scale, TextCall is 0.52 pp lower on V*Bench alone but the core
+        six-benchmark mean is 71.23 versus 69.84 (+1.39 pp). Four of six benchmarks
+        favour TextCall; the two small reversals (V*Bench &minus;0.52 pp, CV-2D &minus;1.05 pp)
+        are within noise, and the suite-level comparison favours TextCall.
+      </p>
+      <div class="summary-box">
+        <p>
+          TextCall matches or exceeds thinking-with-images without post-call pixels under
+          SFT, and maintains active tool use under RL where thinking-with-images collapses.
+          The post-call pixel return is not a necessary carrier for tool-augmented visual
+          reasoning gains.
+        </p>
+      </div>
+
+      <h2 id="why-textcall-works">Why TextCall Works: The Scaffold Carries the Gain</h2>
+      <h3>Data Audit: Scaffold Recovers Image Accuracy</h3>
+      <p>
+        <strong>The scaffold recovers image accuracy</strong> in the paper's static carrier
+        audit. On 1,000 matched training queries, the judge sees different information
+        channels while the question is held fixed.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="results">
+        <tr>
+          <th>Condition</th>
+          <th>Judge input</th>
+          <th>Accuracy</th>
+        </tr>
+        <tr>
+          <td class="left">Question only</td>
+          <td class="left">Question</td>
+          <td>51.20%</td>
+        </tr>
+        <tr>
+          <td class="left">Image only</td>
+          <td class="left">Question + original image</td>
+          <td>73.50%</td>
+        </tr>
+        <tr>
+          <td class="left">Scaffold only</td>
+          <td class="left">Question + first reasoning block + crop/zoom code</td>
+          <td>73.10%</td>
+        </tr>
+        <tr>
+          <td class="left">Image + scaffold</td>
+          <td class="left">Question + image + scaffold</td>
+          <td><strong>79.40%</strong></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="text">
+      <p>
+        Scaffold-only minus image-only is &minus;0.40 pp with 95% CI [&minus;3.20, +2.40], passing the
+        paper's 5 pp non-inferiority test. The gain decomposition is also balanced: of the
+        28.2 pp gain from question-only to image-plus-scaffold, 57% is recovered by both image
+        and scaffold, 22% is image-unique, and 21% is scaffold-unique.
+      </p>
+      <h3>Scaffold Decomposition: Reasoning Guides and Code Grounds</h3>
+      <p>
+        The component ablation asks what inside the scaffold matters. <strong>Reasoning guides
+        and code grounds</strong>: reasoning text supplies intent and target description,
+        while code supplies concrete spatial coordinates.
+      </p>
+    </div>
+
+    <figure class="fig-wide">
+      <img src="images/fig-scaffold-decomposition.png" alt="Paper figure showing full scaffold, reasoning only, and code only variants">
+      <figcaption>
+        <span class="fig-label">Figure 3.</span>
+        Scaffold component decomposition. The variants share identical training questions
+        and tool-return policy; only the assistant text of each tool turn is manipulated.
+        Reasoning supplies the why, while code supplies the where.
+      </figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table class="results">
+        <tr>
+          <th>Variant</th>
+          <th>Assistant content</th>
+          <th>V*Bench</th>
+          <th>HR-4K</th>
+          <th>CV-2D</th>
+          <th>Mean</th>
+        </tr>
+        <tr>
+          <td class="left"><strong>Full scaffold</strong></td>
+          <td class="left">Reasoning + executable code</td>
+          <td>76.96%</td>
+          <td>71.50%</td>
+          <td><strong>70.93%</strong></td>
+          <td><strong>73.13</strong></td>
+        </tr>
+        <tr>
+          <td class="left"><strong>Reasoning only</strong></td>
+          <td class="left">Reasoning + <code>pass</code></td>
+          <td>67.02%</td>
+          <td><strong>72.12%</strong></td>
+          <td>59.81%</td>
+          <td>66.32</td>
+        </tr>
+        <tr>
+          <td class="left"><strong>Code only</strong></td>
+          <td class="left">Empty reasoning + executable code</td>
+          <td>64.92%</td>
+          <td>65.50%</td>
+          <td>55.08%</td>
+          <td>61.83</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="text">
+      <p>
+        Reasoning alone is enough on HR-4K but loses spatial grounding on V*Bench and CV-2D.
+        Code-only keeps coordinates but loses the rationale, so the model can act as if it saw
+        a region that was never returned.
+      </p>
+      <div class="summary-box">
+        <p>
+          The scaffold that survives TextCall is a composition of reasoning text and spatial
+          code. Reasoning supplies the task intent and visual rationale; code anchors that
+          rationale to concrete spatial coordinates. Removing either component weakens average
+          performance, with code grounding mattering most on V*Bench and CV-2D.
+        </p>
+      </div>
+
+      <h2 id="lower-cost-default">TextCall Is the Lower-Cost Default When Pixels Are Not Load-Bearing</h2>
+      <p>
+        If the scaffold is the load-bearing carrier in this regime, TextCall is the cheaper
+        default. It keeps Agent Mode and the multi-turn tool interface, but removes returned
+        image-token injection and returned-image API calls from the reported deployment path.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="results">
+        <tr>
+          <th>Method</th>
+          <th>V*Bench</th>
+          <th>6-bench mean</th>
+          <th>Turns</th>
+          <th>API calls</th>
+          <th>Mean latency</th>
+          <th>p50 latency</th>
+        </tr>
+        <tr>
+          <td class="left">TextCall sandbox</td>
+          <td>78.01%</td>
+          <td><strong>71.23</strong></td>
+          <td><strong>2.3</strong></td>
+          <td><strong>0</strong></td>
+          <td><strong>2.91s</strong></td>
+          <td><strong>2.49s</strong></td>
+        </tr>
+        <tr>
+          <td class="left">Thinking-with-images</td>
+          <td><strong>78.53%</strong></td>
+          <td>69.84</td>
+          <td>2.8</td>
+          <td>1.8</td>
+          <td>4.12s</td>
+          <td>3.10s</td>
+        </tr>
+        <tr>
+          <td class="left">TextCall no execution</td>
+          <td>-</td>
+          <td>-</td>
+          <td>2.4</td>
+          <td><strong>0</strong></td>
+          <td>2.22s</td>
+          <td>1.73s</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="text">
+      <p>
+        The reported latency reduction is <strong>29&ndash;46%</strong>. Each returned image adds
+        about 498 ms of vision-token prefill in later turns, while sandbox execution accounts
+        for about 15% of total latency.
+      </p>
+    </div>
+
+    <figure>
+      <img src="images/token-speed-sweep-paper.png" alt="Token speed sweep showing TextCall latency advantage over image-return tool use">
+      <figcaption>
+        <span class="fig-label">Figure 4.</span>
+        Token-speed sweep. TextCall avoids returned-image vision prefill, giving it a
+        lower latency floor under the sequential per-sample implementation.
+      </figcaption>
+    </figure>
+
+    <div class="text">
+      <h3>Deployment default</h3>
+      <p>
+        The boundary conditions are explicit: one base model, one cold-start corpus, one seed,
+        one GRPO epoch, and one perception-heavy evaluation suite. Returned pixels may become
+        load-bearing when the task has a representational bottleneck or a visual prior gap,
+        such as novel objects or fine-grained visual differences that the scaffold cannot
+        verbalize or replace.
+      </p>
+
+      <h2 id="conclusion">Conclusion</h2>
+      <p>
+        TextCall tests the unit-of-thought question with a training-time carrier swap: preserve
+        the tool-call scaffold, remove returned pixels, and evaluate the model under the protocol
+        it was trained to follow. Across the studied thinking-with-images regime, the results
+        support the Tool-Call Scaffold Hypothesis: much of the gain attributed to visual tool use
+        is carried by structured text emitted before image observation.
+      </p>
+      <p>
+        The conclusion is deliberately scoped. The missing regime is where returned pixels supply
+        information the scaffold cannot verbalize or replace; future thinking-with-images systems
+        should report a scaffold-only control so the load-bearing carrier is measured rather than
+        assumed.
+      </p>
+
+      <h2 id="resources">Paper, Code, BibTeX</h2>
+      <p id="paper">
+        <strong>Paper.</strong> Placeholder link for the public preprint or project PDF.
+        <a href="#paper">Paper placeholder</a>
+      </p>
+      <p id="code">
+        <strong>Code.</strong> Placeholder link for the implementation repository.
+        <a href="#code">Code placeholder</a>
+      </p>
+      <p>
+        Figures on this page are exported from the paper figure assets; resource links remain
+        placeholders until the public preprint and repository are ready.
+      </p>
+    </div>
+
+    <pre class="bibtex" id="bibtex">@misc{textcall2026thinking,
   title        = {Thinking With Tools, Not With Pixels: Tool Calls as Text Scaffolds for Visual Reasoning},
   author       = {Shao, Jiahao and Yang, Yuanbo and Liao, Yiyi and Shen, Yujun and Yang, Ceyuan and Xu, Yinghao},
   year         = {2026},
   note         = {Project page placeholder}
-}</code></pre>
-                </div>
-            </section>
-        </d-article>
+}</pre>
 
-        <script src="contents_bar.js"></script>
-        <script>
-            const copyButton = document.querySelector("[data-copy-bibtex]");
-            if (copyButton) {
-                copyButton.addEventListener("click", async () => {
-                    const bibtex = document.querySelector("#bibtex code").innerText;
-                    try {
-                        await navigator.clipboard.writeText(bibtex);
-                        copyButton.textContent = "Copied";
-                        window.setTimeout(() => {
-                            copyButton.textContent = "Copy BibTeX";
-                        }, 1600);
-                    } catch (error) {
-                        copyButton.textContent = "Copy manually";
-                    }
-                });
-            }
+  </div>
 
-            document.querySelectorAll(".table-scroll").forEach(el => {
-                if (el.scrollWidth > el.clientWidth) {
-                    const hint = document.createElement("div");
-                    hint.className = "scroll-hint visible";
-                    hint.textContent = "Scroll for more columns →";
-                    el.after(hint);
-                    el.addEventListener("scroll", () => {
-                        hint.classList.toggle("visible",
-                            el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-                    });
-                }
-            });
-        </script>
-    </body>
+  <script>
+    document.querySelectorAll(".table-wrap").forEach(el => {
+      if (el.scrollWidth > el.clientWidth) {
+        el.style.overflowX = "auto";
+      }
+    });
+  </script>
+</body>
 </html>
